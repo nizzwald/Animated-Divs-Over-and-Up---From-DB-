@@ -1,0 +1,80 @@
+<html>
+<head>
+<style>
+    body {
+     margin:0;
+     padding:0;
+    }
+    #container {
+        height:100%;
+        width:100%;
+        overflow:auto;
+    }
+    .floatingText{
+        font-family:serif;
+        margin:0;
+        padding:0;
+        font-size:2em;
+        float:left;
+        position:absolute;
+       width:100%;
+    }
+</style>    
+</head>
+<body>
+    <div id="container">
+      
+    </div>
+<div id="bottom"></div> 
+<script src="http://johnfoxstudios.com/projects/dist/assets/js/jquery.js"></script>
+<script>
+$(document).ready(function(){
+    var texts = ["This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?", "This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?" ]
+    var counter = 0;
+    var divName = "#div"+counter;
+    var previousDivHeight = 10;
+    sendIt(divName);
+    
+    function sendIt(divID) {
+        
+        //console.log("Container height: "+$("#container").height());
+        var divMain = divID.substr(1);
+        $("#container").append("<div id='"+divMain+"' class='floatingText'></div>");
+        
+        $(divID).html(texts[counter]); 
+        var heightWithOffset = parseInt($("body").css("height"))-(parseInt($(divID).css("height"))); 
+        
+        $( window ).resize(function() {
+            console.log("window size");
+          var heightWithOffset = parseInt($("#container").css("height"))-(parseInt($(divID).css("height"))); 
+        });
+     
+        if(previousDivHeight > heightWithOffset) {
+            $(divID).css("top", previousDivHeight);
+            $("#container").css("height",parseInt($("body").css("height"))+parseInt($(divID).css("height")));  
+        }
+        else {
+            $(divID).css("top", heightWithOffset);
+        }
+        
+        setTimeout(function() {
+            $("body").animate({ scrollTop: $("#container")[0].scrollHeight }, 700);
+        }, 10);
+            
+       $(divID).css("left", $("#container").css("width"));
+       
+    
+        $(divID).animate({left:10}, 3000, function() {
+        $(divID).animate({top:previousDivHeight}, 2000, function() {
+            previousDivHeight = previousDivHeight + parseInt($(divID).css("height"));
+            counter++;
+            sendIt("#div"+counter);
+      });
+    });
+    }
+    
+    console.log();
+});
+</script>
+</body>
+</html>
