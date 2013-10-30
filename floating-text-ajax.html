@@ -14,11 +14,38 @@
         font-family:serif;
         margin:0;
         padding:0;
-        font-size:2em;
+        font-size:1.4em;
         float:left;
         position:absolute;
        width:100%;
     }
+    .red {
+     color:red;   
+    }
+    .blueish {
+       color:#5F9EA0; 
+    }
+    
+    .rosyBrown {
+      color:RosyBrown;   
+    }
+    
+    .Silver {
+        color:#A9A9A9;
+        font-weight:bold;
+    }
+    .Gold {
+        color:#B8860B; 
+        font-weight:bold;
+    }
+    .Bronze {
+        color:#D2691E;
+        font-weight:bold;
+    }
+    .underline {
+     text-decoration:underline;   
+    }
+    
 </style>    
 </head>
 <body>
@@ -30,26 +57,59 @@
 <script src="js/jstween-1.1.min.js"></script>
 <script>
 $(document).ready(function(){
-    var texts = ["This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?", "This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?","This is some cool text!", "This is some cool text too!", "This is some cool text 3?" ]
+    //set counter to use in naming the div
     var counter = 0;
     var divName = "#div"+counter;
+    //This is the starting div height, essentially padding-top
     var previousDivHeight = 10;
+    //Define main text variable
+    var divText = "";
+    //Call main sendIt function to start process
     sendIt(divName);
     
     function sendIt(divID) {
-        
-        //console.log("Container height: "+$("#container").height());
+      //Call php file to retrieve JSON object  
+      $.getJSON( "getOlympicInfo.php", function( ) {
+      })
+      .done(function(data) {
+          //Athlete's names are coming through as Lastname, Firstname
+          //Change them around here and...
+          //Some athletes are single named people like soccer players
+          //Check if a comma exists and if not, just use the single name
+          var rawName = new Array();
+          if(data[0].Athlete.indexOf(',') > -1) { 
+            rawName = data[0].Athlete.split(',');
+          }
+          else {
+            rawName[0] = "";
+            rawName[1] = data[0].Athlete;
+          }
+          //Create the div string using json notation
+                divText = "<span class='red'>"+rawName[1]+" "+rawName[0]+"</span> won the <span class='"+data[0].Medal+"'> "+data[0].Medal+"</span> for <span class='underline'>"+data[0].Country+"</span> in <span class='rosyBrown'>"+data[0].Event+"</span> during the <span class='blueish'>"+data[0].Edition+" "+data[0].Season+"</span> Olympic games";
+  })
+  .fail(function() {
+    console.out("We got a possible situation down here...");
+  })
+  .always(function() {
+      //Could add something here.
+  });
+        //remove the # from the divID in order to properly use the div ID in HTML
         var divMain = divID.substr(1);
+        //Add the div to the main container
         $("#container").append("<div id='"+divMain+"' class='floatingText'></div>");
         
-        $(divID).html(texts[counter]); 
+        //Add the olympic text to the actual div
+        $(divID).html(divText); 
+        
+        //heightWithOffset is used to move the text div up above the bottom of the window, so it takes the height of itself and subtracts that from the body's height
         var heightWithOffset = parseInt($("body").css("height"))-(parseInt($(divID).css("height"))); 
         
+        //if the window is resized, the heightWithOffset value is recalculated
         $( window ).resize(function() {
-            console.log("window size");
           var heightWithOffset = parseInt($("#container").css("height"))-(parseInt($(divID).css("height"))); 
         });
-     
+        
+        //Check if the screen is filled up with text divs.  If so then it starts to increase the size of the container div
         if(previousDivHeight > heightWithOffset) {
             $(divID).css("top", previousDivHeight);
             $("#container").css("height",parseInt($("body").css("height"))+parseInt($(divID).css("height")));  
@@ -57,19 +117,21 @@ $(document).ready(function(){
         else {
             $(divID).css("top", heightWithOffset);
         }
-        
+       //Animates the scrolling to the bottom 
         setTimeout(function() {
             $("body").animate({ scrollTop: $("#container")[0].scrollHeight }, 700);
         }, 10);
-            
-       $(divID).css("left", $("#container").css("width"));
        
+        //Set the horizontal position of the text div just outside of the container
+       $(divID).css("left", $("#container").css("width"));
+        
+  //Send the div over using the jsTween tween call     
     $(divID).tween({
    left:{
       stop: 10,
       time: 0,
       units: 'px',
-      duration: 1,
+      duration: 2,
       effect:'easeInOut',
        onStop: function(){
         goUp();
@@ -94,6 +156,7 @@ function goUp() {
    }
 }); 
 }
+//jsTween required play call
 $.play();      
 }
 });
